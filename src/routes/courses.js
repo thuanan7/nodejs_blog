@@ -3,6 +3,8 @@ const router = express.Router();
 const coursesController = require("../app/controllers/coursesController");
 const errorController = require("../app/controllers/ErrorController");
 
+router.get('/create', coursesController.create);
+router.post('/store', coursesController.store);
 router.get("/:slug", coursesController.show);
 router.get("/", coursesController.home);
 router.use(errorController.err404);

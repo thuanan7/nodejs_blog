@@ -30,6 +30,22 @@ class CoursesController {
       })
       .catch(next);
   }
+
+  // [GET] /courses/create
+  create(req, res, next) {
+    res.render("courses/create.hbs");
+  }
+
+  // [POST] /courses/store
+  store(req, res, next) {
+    const formData = req.body;
+    formData.image = `https://img.youtube.com/vi/${req.body.videoId}/sddefault.jpg`;
+    const course = new Course(formData);
+    course.save((err) => {
+      if (err) res.send("Create failed!");
+      else res.redirect("/");
+    });
+  }
 }
 
 module.exports = new CoursesController();
