@@ -17,10 +17,6 @@ class SiteController {
   search(req, res) {
     res.render("search");
   }
-
-  error(req, res) {
-    res.send("Page not found!");
-  }
 }
 
 module.exports = new SiteController();
