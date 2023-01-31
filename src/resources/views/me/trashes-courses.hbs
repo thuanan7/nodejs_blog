@@ -1,22 +1,46 @@
-<div class="mt-4">
+<form class="mt-4" name="container-form" method="POST" action="/courses/handle-form-actions">
     <div>
         <h3>Các khóa học đã xóa</h3>
         <a href="/me/stored/courses">Khóa học của tôi</a>
     </div>
 
+    <div class="mt-4 d-flex align-items-center">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+            <label class="form-check-label" for="checkbox-all">
+                Chọn tất cả
+            </label>
+        </div>
+
+        <select class="form-control form-control-sm checkbox-select-all-options" name="action" required>
+            <option value="">-- Chọn hành động --</option>
+            <option value="restore">Khôi phục</option>
+            <option value="destroy">Xóa vĩnh viễn</option>
+        </select>
+
+        <button class="btn btn-primary btn-sm check-all-submit-btn disabled">Thực hiện</button>
+    </div>
+
     <table class="table mt-4">
         <thead>
             <tr>
+                <th scope="col"></th>
                 <th scope="col">#</th>
                 <th scope="col">Tên khóa học</th>
                 <th scope="col">Trình độ</th>
                 <th scope="col">Thời gian xóa</th>
+                <th scope="col"></th>
                 <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
             {{#each courses}}
             <tr>
+                <td>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="courseIds[]" value="{{this._id}}">
+                    </div>
+                </td>
                 <th scope="row">{{sum @index 1}}</th>
                 <td>{{this.name}}</td>
                 <td>{{this.level}}</td>
@@ -36,7 +60,7 @@
             {{/each}}
         </tbody>
     </table>
-</div>
+<form/>
 
 {{!-- Confirm delete model --}}
 <div class="modal" id="delete-course-modal" tabindex="-1" role="dialog">
@@ -68,9 +92,12 @@
     document.addEventListener('DOMContentLoaded', function () {
         var courseId;
         var btnDeleteCourse = document.getElementById('btn-delete-course');
+        var checkAllSubmitBtn = $('.check-all-submit-btn');
+        var checkboxAll = $('#checkbox-all');
         var deleteForm = document.forms["delete-course-form"];
         var restoreForm = document.forms["restore-course-form"];
         var btnRestoreCourse = $('.btn-restore-course');
+        var coursesCheckbox = $('input[name="courseIds[]"]');
 
         // When dialog console clicked!
         $('#delete-course-modal').on('show.bs.modal', function (event) {
@@ -89,6 +116,42 @@
             let courseId = $(this).data('id');
             restoreForm.action = "/courses/" + courseId + "/restore?_method=PATCH";
             restoreForm.submit();
+        });
+
+        // When Checkbox All Clicked!
+        checkboxAll.change(function () {
+            coursesCheckbox.prop('checked', checkboxAll.prop('checked'));
+            renderCheckAllSubmitBtn()
+        });
+
+        // When Course Checkbox Clicked!
+        coursesCheckbox.change(function () {
+            var isCheckedAll = coursesCheckbox.length === $('input[name="courseIds[]"]:checked').length;
+            checkboxAll.prop('checked', isCheckedAll);
+            renderCheckAllSubmitBtn()
+        });
+
+        function renderCheckAllSubmitBtn() {
+            var countCourseChecked = $('input[name="courseIds[]"]:checked').length;
+            if (countCourseChecked > 0) {
+                checkAllSubmitBtn.removeClass('disabled');
+            } else {
+                checkAllSubmitBtn.addClass('disabled');
+            }
+        };
+
+        checkAllSubmitBtn.click(function (e) {
+            var isSubmittable = !checkAllSubmitBtn.hasClass('disabled');
+            if (!isSubmittable) {
+                e.preventDefault();
+            }
+        });
+
+        checkAllSubmitBtn.on(function (e) {
+            var isSubmittable = !checkAllSubmitBtn.hasClass('disabled');
+            if (!isSubmittable) {
+                e.preventDefault();
+            }
         });
     });
 </script>
